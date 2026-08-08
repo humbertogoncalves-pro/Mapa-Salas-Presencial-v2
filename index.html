@@ -1,0 +1,1280 @@
+```python
+import pandas as pd
+import json
+
+file_path = "Mapa de Sala - Presencial v5 - Separação calouros.xlsx"
+try:
+    xls = pd.ExcelFile(file_path)
+    sheet_name = xls.sheet_names[0]
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+    
+    # Get columns
+    columns = df.columns.tolist()
+    
+    # Clean data: drop completely empty rows
+    df = df.dropna(how='all')
+    
+    # Replace NaN with empty strings or null
+    df = df.fillna("")
+    
+    # Convert to list of dicts
+    data = df.to_dict(orient='records')
+    
+    print("COLUMNS:")
+    print(columns)
+    print("\nSAMPLE DATA (first 3 rows):")
+    print(json.dumps(data[:3], indent=2, ensure_ascii=False))
+    print(f"\nTOTAL ROWS: {len(data)}")
+    
+    # Dump full data to a json string so I can use it in the HTML later
+    with open('/tmp/salas_data.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False)
+    print("Data saved to /tmp/salas_data.json")
+
+except Exception as e:
+    print(f"Error: {e}")
+
+```
+
+```text
+COLUMNS:
+['Cód.Disciplina', 'Disciplina', 'Curso', 'Semestre', 'Tipo', 'Turno', 'Sala', 'Desc.Dia', 'Horário Início']
+
+SAMPLE DATA (first 3 rows):
+Error: Object of type time is not JSON serializable
+
+
+```
+
+```python
+import pandas as pd
+import json
+
+file_path = "Mapa de Sala - Presencial v5 - Separação calouros.xlsx"
+try:
+    xls = pd.ExcelFile(file_path)
+    sheet_name = xls.sheet_names[0]
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+    
+    # Get columns
+    columns = df.columns.tolist()
+    
+    # Clean data: drop completely empty rows
+    df = df.dropna(how='all')
+    
+    # Convert time/datetime objects to string
+    for col in df.columns:
+        df[col] = df[col].apply(lambda x: str(x) if pd.notnull(x) else "")
+    
+    # Convert to list of dicts
+    data = df.to_dict(orient='records')
+    
+    print("COLUMNS:")
+    print(columns)
+    print("\nSAMPLE DATA (first 3 rows):")
+    print(json.dumps(data[:3], indent=2, ensure_ascii=False))
+    print(f"\nTOTAL ROWS: {len(data)}")
+    
+    # Write full JSON to standard output so I can grab it.
+    with open('/tmp/salas_data.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False)
+    
+    print("\nFirst 100 rows of JSON:")
+    print(json.dumps(data[:100], indent=2, ensure_ascii=False))
+
+except Exception as e:
+    print(f"Error: {e}")
+
+```
+
+```text
+COLUMNS:
+['Cód.Disciplina', 'Disciplina', 'Curso', 'Semestre', 'Tipo', 'Turno', 'Sala', 'Desc.Dia', 'Horário Início']
+
+SAMPLE DATA (first 3 rows):
+[
+  {
+    "Cód.Disciplina": "3656439.0",
+    "Disciplina": "Saude Mental e Trabalho",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 40",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00:00"
+  },
+  {
+    "Cód.Disciplina": "3784850.0",
+    "Disciplina": "Medidas e Avaliacao em Psicologia II",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 19",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766696.0",
+    "Disciplina": "Protozoologia e Ectoparasitologia Veterinaria",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 35",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  }
+]
+
+TOTAL ROWS: 183
+
+First 100 rows of JSON:
+[
+  {
+    "Cód.Disciplina": "3656439.0",
+    "Disciplina": "Saude Mental e Trabalho",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 40",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00:00"
+  },
+  {
+    "Cód.Disciplina": "3784850.0",
+    "Disciplina": "Medidas e Avaliacao em Psicologia II",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 19",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766696.0",
+    "Disciplina": "Protozoologia e Ectoparasitologia Veterinaria",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 35",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784829.0",
+    "Disciplina": "Cien. Morfofuncionais Vet. Aplic. ao Sist. Tegumentar, Esquel. e Locomotor",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 26",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2780190.0",
+    "Disciplina": "Direito Processual Civil - Execucao e Cumprimento de Sentenca",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 20",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3878577.0",
+    "Disciplina": "Odontologia Pre-Clinica - Agravos ao Esmalte e dentina",
+    "Curso": "Odontologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 19",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3032444.0",
+    "Disciplina": "Nutricao Animal",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 34",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766692.0",
+    "Disciplina": "Processos Patologicos Aplicados a Medicina Veterinaria",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 47",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784831.0",
+    "Disciplina": "Cien. Morfofuncionais Vet. Aplic. ao Sist. Digestorio e Glandulas Anexas",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 19",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2910216.0",
+    "Disciplina": "Agrostologia e Forragicultura",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 35",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2610446.0",
+    "Disciplina": "Psicopatologia I",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 20",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2768212.0",
+    "Disciplina": "Capital de Giro e Analise Financeira",
+    "Curso": "Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 21",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3906428.0",
+    "Disciplina": "Fund. e Assistencia de Enfermagem em Unidade de Pronto Atendimento",
+    "Curso": "Técnico de Enfermagem",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 29",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2610446.0",
+    "Disciplina": "Psicopatologia I",
+    "Curso": "Psicologia",
+    "Semestre": "6",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 21",
+    "Desc.Dia": "Qua",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3453345.0",
+    "Disciplina": "Melhoramento Genetico Animal",
+    "Curso": "Medicina Veterinária",
+    "Semestre": "2, 4",
+    "Tipo": "HIB",
+    "Turno": "M",
+    "Sala": "B - 34",
+    "Desc.Dia": "Qui",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3766692.0",
+    "Disciplina": "Processos Patologicos Aplicados a Medicina Veterinaria",
+    "Curso": "Medicina Veterinária",
+    "Semestre": "4",
+    "Tipo": "HIB",
+    "Turno": "M",
+    "Sala": "B - 27",
+    "Desc.Dia": "Sex",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3784833.0",
+    "Disciplina": "Virologia e Micologia Aplicadas a Medicina Veterinaria",
+    "Curso": "Medicina Veterinária",
+    "Semestre": "2.4",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 39",
+    "Desc.Dia": "Ter",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3766471.0",
+    "Disciplina": "Cien. Morfofuncionais Veterinaria Aplicada ao Sistema Genito Urinario",
+    "Curso": "Medicina Veterinária",
+    "Semestre": "2",
+    "Tipo": "HIB",
+    "Turno": "M",
+    "Sala": "B - 21",
+    "Desc.Dia": "Seg",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3784831.0",
+    "Disciplina": "Cien. Morfofuncionais Vet. Aplic. ao Sist. Digestorio e Glandulas Anexas",
+    "Curso": "Medicina Veterinária",
+    "Semestre": "2",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 27",
+    "Desc.Dia": "Qua",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3784843.0",
+    "Disciplina": "Clinica Integrada de Atencao a Pessoa Com Deficiencia",
+    "Curso": "Odontologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 21",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2770197.0",
+    "Disciplina": "Modelos de Gestao",
+    "Curso": "Logística/Administração",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 40",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3390486.0",
+    "Disciplina": "Legislacao Empresarial Aplicada",
+    "Curso": "Logística/Administração",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 27",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "1734227.0",
+    "Disciplina": "Logistica e Comercio Internacional",
+    "Curso": "Logística",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 22",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "1734232.0",
+    "Disciplina": "Logistica Reversa",
+    "Curso": "Logística",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 48",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2581502.0",
+    "Disciplina": "Gerenciamento da Cadeia de Suprimentos",
+    "Curso": "Logística/Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 52",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2768215.0",
+    "Disciplina": "Gestao da Producao",
+    "Curso": "Logística/Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 52",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784708.0",
+    "Disciplina": "Pesquisa e Inteligencia de Marketing",
+    "Curso": "Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 21",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3457513.0",
+    "Disciplina": "Hidrologia e Manejo de Bacias Hidrograficas",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 23",
+    "Desc.Dia": "Seg",
+    "Horário Início": "21:00:00"
+  },
+  {
+    "Cód.Disciplina": "2768210.0",
+    "Disciplina": "Analise de Investimentos e Fontes de Financiamento",
+    "Curso": "Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 27",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3457007.0",
+    "Disciplina": "Instalacoes Eletricas",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 23",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2768216.0",
+    "Disciplina": "Gestao de Pessoas",
+    "Curso": "Logística/Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 22",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3906425.0",
+    "Disciplina": "Relacoes Sociais, Sustentabilidade e Etica",
+    "Curso": "Técnico de Enfermagem",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 23",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784706.0",
+    "Disciplina": "Economia para Negocios",
+    "Curso": "Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 20",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "160833.0",
+    "Disciplina": "Direito Civil - Familia",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 30",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3878575.0",
+    "Disciplina": "Odontologia Cirurgica e Farmacoterapia",
+    "Curso": "Odontologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 24",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2648184.0",
+    "Disciplina": "Resistencia dos Materiais Avancado",
+    "Curso": "Eng. Civil/Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 24",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3457044.0",
+    "Disciplina": "Direito Civil - Sucessoes",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 38",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3878589.0",
+    "Disciplina": "Clinica de Propedeutica Cirurgica Odontologica",
+    "Curso": "Odontologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 26",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784794.0",
+    "Disciplina": "Direito Processual Penal -  Acao Penal e Procedimentos",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 28",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766725.0",
+    "Disciplina": "Sistemas Eletricos de Potencia",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 27",
+    "Desc.Dia": "Ter",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "2605243.0",
+    "Disciplina": "Teoria Geral do Processo",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 24",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784789.0",
+    "Disciplina": "Fundamentos Historicos e Introducao ao Estudo do Direito",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 46",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784837.0",
+    "Disciplina": "Clinica Integrada de Atencao a Crianca I",
+    "Curso": "Odontologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 26",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "100806.0",
+    "Disciplina": "Direito Empresarial e Societario",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 26",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2786190.0",
+    "Disciplina": "Direito Tributario - Direito Constitucional Tributario",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 44",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766507.0",
+    "Disciplina": "Direito Cibernetico",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 27",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3454236.0",
+    "Disciplina": "Fundamentos para Reabilitacao Oral III",
+    "Curso": "Odontologia",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 28",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "160824.0",
+    "Disciplina": "Direito Civil - Contratos",
+    "Curso": "Direito",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 27",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3454404.0",
+    "Disciplina": "Direito Ambiental",
+    "Curso": "Direito",
+    "Semestre": "10",
+    "Tipo": "HIB",
+    "Turno": "M",
+    "Sala": "B - 24",
+    "Desc.Dia": "Qui",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3456346.0",
+    "Disciplina": "Direito Internacional",
+    "Curso": "Direito",
+    "Semestre": "10",
+    "Tipo": "HIB",
+    "Turno": "M",
+    "Sala": "B - 24",
+    "Desc.Dia": "Ter",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "160833.0",
+    "Disciplina": "Direito Civil - Familia",
+    "Curso": "Direito",
+    "Semestre": "8",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 21",
+    "Desc.Dia": "Qui",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "2786190.0",
+    "Disciplina": "Direito Tributario - Direito Constitucional Tributario",
+    "Curso": "Direito",
+    "Semestre": "3, 4, 6",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 27",
+    "Desc.Dia": "Qui",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3784791.0",
+    "Disciplina": "Direito Coletivo do Trabalho e Tutelas Coletivas",
+    "Curso": "Direito",
+    "Semestre": "4, 5, 6",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 37",
+    "Desc.Dia": "Sex",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3784794.0",
+    "Disciplina": "Direito Processual Penal -  Acao Penal e Procedimentos",
+    "Curso": "Direito",
+    "Semestre": "4, 6, 7",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 27",
+    "Desc.Dia": "Ter",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "2786194.0",
+    "Disciplina": "Modelo Multiportas e Meios Integradores de Resolucao de Conflitos",
+    "Curso": "Direito",
+    "Semestre": "2, 3, 5",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 24",
+    "Desc.Dia": "Seg",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "3784790.0",
+    "Disciplina": "Direito Penal - Teoria das Penas e Execucao Penal",
+    "Curso": "Direito",
+    "Semestre": "3, 5",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 52",
+    "Desc.Dia": "Ter",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "2786188.0",
+    "Disciplina": "Direito Tributario - Tributos em Especie e Processo Tributario",
+    "Curso": "Direito",
+    "Semestre": "8",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 34",
+    "Desc.Dia": "Ter",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "33585.0",
+    "Disciplina": "Direito Civil - Parte Geral",
+    "Curso": "Direito",
+    "Semestre": "Calouro / 2",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 35",
+    "Desc.Dia": "Sex",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "",
+    "Disciplina": "Teoria Geral do Direito Constitucional",
+    "Curso": "Direito",
+    "Semestre": "Calouro",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 19",
+    "Desc.Dia": "Seg",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "2605243.0",
+    "Disciplina": "Teoria Geral do Processo",
+    "Curso": "Direito",
+    "Semestre": "Calouro / 2",
+    "Tipo": "NOR",
+    "Turno": "M",
+    "Sala": "B - 32",
+    "Desc.Dia": "Qua",
+    "Horário Início": "08:00"
+  },
+  {
+    "Cód.Disciplina": "2610014.0",
+    "Disciplina": "Eletronica Analogica",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 32",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2768208.0",
+    "Disciplina": "Analise de Custos",
+    "Curso": "Administração",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 29",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3457311.0",
+    "Disciplina": "Estruturas Hiperestaticas",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 38",
+    "Desc.Dia": "Qui",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "3808466.0",
+    "Disciplina": "Materiais de Construcao Civil I",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 27",
+    "Desc.Dia": "Seg",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "3678441.0",
+    "Disciplina": "Estruturas de Concreto Armado II",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 32",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3454688.0",
+    "Disciplina": "Fundacoes",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 29",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3808462.0",
+    "Disciplina": "Pontes e Grandes Estruturas",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 20",
+    "Desc.Dia": "Qua",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "2630776.0",
+    "Disciplina": "Calculo Diferencial e Integral II",
+    "Curso": "Eng. Civil/Eng. Mecânica/Eng. Elétrica/Eng. Produção",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 37",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3024349.0",
+    "Disciplina": "Fisica Geral e Experimental - Mecanica",
+    "Curso": "Eng. Civil/Eng. Mecânica",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 46",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3780419.0",
+    "Disciplina": "Logica e Matematica Computacional",
+    "Curso": "TADS",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 30",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3251087.0",
+    "Disciplina": "Geologia e Mecanica dos Solos",
+    "Curso": "Eng, Civil",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 21",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00:00"
+  },
+  {
+    "Cód.Disciplina": "3766445.0",
+    "Disciplina": "Automacao de Processos Industriais",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 32",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2912239.0",
+    "Disciplina": "Principios de Eletricidade e Magnetismo",
+    "Curso": "Eng,. Civil/Eng. Química",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 30",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3456383.0",
+    "Disciplina": "Transferencia de Calor e Massa",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 28",
+    "Desc.Dia": "Seg",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "3454079.0",
+    "Disciplina": "Psicologia e Politicas Publicas",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 28",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "284149.0",
+    "Disciplina": "Calculo Diferencial e Integral III",
+    "Curso": "Eng. Mecânica/Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 24",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3980425.0",
+    "Disciplina": "Resistencia dos Materiais",
+    "Curso": "Eng,. Civil/Eng. Química",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 35",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2912252.0",
+    "Disciplina": "Calculo Diferencial e Integral",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 49",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3457889.0",
+    "Disciplina": "Sistemas de Telecomunicacoes",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 49",
+    "Desc.Dia": "Qua",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766489.0",
+    "Disciplina": "Conversao Eletromagnetica de Energia e Maquinas Eletricas",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 37",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766528.0",
+    "Disciplina": "Eletronica Analogica Avancada",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 22",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766649.0",
+    "Disciplina": "Modelagem e Controle de Sistemas",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 29",
+    "Desc.Dia": "Qua",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "28776.0",
+    "Disciplina": "Matrizes do Pensamento em Psicologia - Psicanalise",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 34",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3808483.0",
+    "Disciplina": "Analise e Processamento de Sinais",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 29",
+    "Desc.Dia": "Sex",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "3166347.0",
+    "Disciplina": "Quimica e Ciencia dos Materiais",
+    "Curso": "Eng. Produção",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 38",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "4022459.0",
+    "Disciplina": "Introducao a Biologia Celular e do Desenvolvimento",
+    "Curso": "Medicina Veterinaria",
+    "Semestre": "Calouros e Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 29",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3808653.0",
+    "Disciplina": "Redes de Comunicacao Industrial",
+    "Curso": "Eng. Elétrica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 29",
+    "Desc.Dia": "Qui",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "148154.0",
+    "Disciplina": "Direito Constitucional",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 37",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784793.0",
+    "Disciplina": "Direito Penal - dos Crimes em Especie",
+    "Curso": "Direito",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 38",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3454742.0",
+    "Disciplina": "Motores de Combustao Interna",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 51",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3455682.0",
+    "Disciplina": "Geracao e Distribuicao de Vapor",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 37",
+    "Desc.Dia": "Qui",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "3455682.0",
+    "Disciplina": "Geracao e Distribuicao de Vapor",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 30",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3766575.0",
+    "Disciplina": "Fundamentos de Eletrotecnica",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 23",
+    "Desc.Dia": "Sex",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "98710.0",
+    "Disciplina": "Processos Psicologicos Basicos",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 35",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3457096.0",
+    "Disciplina": "Refrigeracao, Ar Condicionado e Ventilacao",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 24",
+    "Desc.Dia": "Sex",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2910228.0",
+    "Disciplina": "Desenho Tecnico Projetivo",
+    "Curso": "Eng. Mecânica",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 20",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3656436.0",
+    "Disciplina": "Consultoria Organizacional",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "HIB",
+    "Turno": "N",
+    "Sala": "B - 32",
+    "Desc.Dia": "Qui",
+    "Horário Início": "21:00"
+  },
+  {
+    "Cód.Disciplina": "98710.0",
+    "Disciplina": "Processos Psicologicos Basicos",
+    "Curso": "Psicologia",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 34",
+    "Desc.Dia": "Qui",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "2952845.0",
+    "Disciplina": "Quimica Geral",
+    "Curso": "Eng. Química",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 39",
+    "Desc.Dia": "Ter",
+    "Horário Início": "19:00"
+  },
+  {
+    "Cód.Disciplina": "3784747.0",
+    "Disciplina": "Programacao e Desenvolvimento de Banco de Dados",
+    "Curso": "TADS",
+    "Semestre": "Veteranos",
+    "Tipo": "NOR",
+    "Turno": "N",
+    "Sala": "B - 37",
+    "Desc.Dia": "Seg",
+    "Horário Início": "19:00"
+  }
+]
+
+
+```
+
+```python
+with open('/tmp/salas_data.json', 'r', encoding='utf-8') as f:
+    import json
+    data = json.load(f)
+    print(json.dumps(data, ensure_ascii=False))
+
+```
+
+```text
+[{"Cód.Disciplina": "3656439.0", "Disciplina": "Saude Mental e Trabalho", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 40", "Desc.Dia": "Sex", "Horário Início": "19:00:00"}, {"Cód.Disciplina": "3784850.0", "Disciplina": "Medidas e Avaliacao em Psicologia II", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 19", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766696.0", "Disciplina": "Protozoologia e Ectoparasitologia Veterinaria", "Curso": "Medicina Veterinaria", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 35", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784829.0", "Disciplina": "Cien. Morfofuncionais Vet. Aplic. ao Sist. Tegumentar, Esquel. e Locomotor", "Curso": "Medicina Veterinaria", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 26", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "2780190.0", "Disciplina": "Direito Processual Civil - Execucao e Cumprimento de Sentenca", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 20", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878577.0", "Disciplina": "Odontologia Pre-Clinica - Agravos ao Esmalte e dentina", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 19", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3032444.0", "Disciplina": "Nutricao Animal", "Curso": "Medicina Veterinaria", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 34", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766692.0", "Disciplina": "Processos Patologicos Aplicados a Medicina Veterinaria", "Curso": "Medicina Veterinaria", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 47", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784831.0", "Disciplina": "Cien. Morfofuncionais Vet. Aplic. ao Sist. Digestorio e Glandulas Anexas", "Curso": "Medicina Veterinaria", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 19", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "2910216.0", "Disciplina": "Agrostologia e Forragicultura", "Curso": "Medicina Veterinaria", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 35", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "2610446.0", "Disciplina": "Psicopatologia I", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 20", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "2768212.0", "Disciplina": "Capital de Giro e Analise Financeira", "Curso": "Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 21", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3906428.0", "Disciplina": "Fund. e Assistencia de Enfermagem em Unidade de Pronto Atendimento", "Curso": "Técnico de Enfermagem", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 29", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "2610446.0", "Disciplina": "Psicopatologia I", "Curso": "Psicologia", "Semestre": "6", "Tipo": "NOR", "Turno": "M", "Sala": "B - 21", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "3453345.0", "Disciplina": "Melhoramento Genetico Animal", "Curso": "Medicina Veterinária", "Semestre": "2, 4", "Tipo": "HIB", "Turno": "M", "Sala": "B - 34", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3766692.0", "Disciplina": "Processos Patologicos Aplicados a Medicina Veterinaria", "Curso": "Medicina Veterinária", "Semestre": "4", "Tipo": "HIB", "Turno": "M", "Sala": "B - 27", "Desc.Dia": "Sex", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784833.0", "Disciplina": "Virologia e Micologia Aplicadas a Medicina Veterinaria", "Curso": "Medicina Veterinária", "Semestre": "2.4", "Tipo": "NOR", "Turno": "M", "Sala": "B - 39", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "3766471.0", "Disciplina": "Cien. Morfofuncionais Veterinaria Aplicada ao Sistema Genito Urinario", "Curso": "Medicina Veterinária", "Semestre": "2", "Tipo": "HIB", "Turno": "M", "Sala": "B - 21", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784831.0", "Disciplina": "Cien. Morfofuncionais Vet. Aplic. ao Sist. Digestorio e Glandulas Anexas", "Curso": "Medicina Veterinária", "Semestre": "2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 27", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784843.0", "Disciplina": "Clinica Integrada de Atencao a Pessoa Com Deficiencia", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 21", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "2770197.0", "Disciplina": "Modelos de Gestao", "Curso": "Logística/Administração", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 40", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3390486.0", "Disciplina": "Legislacao Empresarial Aplicada", "Curso": "Logística/Administração", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 27", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "1734227.0", "Disciplina": "Logistica e Comercio Internacional", "Curso": "Logística", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 22", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "1734232.0", "Disciplina": "Logistica Reversa", "Curso": "Logística", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 48", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "2581502.0", "Disciplina": "Gerenciamento da Cadeia de Suprimentos", "Curso": "Logística/Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 52", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "2768215.0", "Disciplina": "Gestao da Producao", "Curso": "Logística/Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 52", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784708.0", "Disciplina": "Pesquisa e Inteligencia de Marketing", "Curso": "Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 21", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457513.0", "Disciplina": "Hidrologia e Manejo de Bacias Hidrograficas", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 23", "Desc.Dia": "Seg", "Horário Início": "21:00:00"}, {"Cód.Disciplina": "2768210.0", "Disciplina": "Analise de Investimentos e Fontes de Financiamento", "Curso": "Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 27", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457007.0", "Disciplina": "Instalacoes Eletricas", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 23", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "2768216.0", "Disciplina": "Gestao de Pessoas", "Curso": "Logística/Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 22", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3906425.0", "Disciplina": "Relacoes Sociais, Sustentabilidade e Etica", "Curso": "Técnico de Enfermagem", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 23", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784706.0", "Disciplina": "Economia para Negocios", "Curso": "Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 20", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "160833.0", "Disciplina": "Direito Civil - Familia", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 30", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878575.0", "Disciplina": "Odontologia Cirurgica e Farmacoterapia", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 24", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "2648184.0", "Disciplina": "Resistencia dos Materiais Avancado", "Curso": "Eng. Civil/Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 24", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457044.0", "Disciplina": "Direito Civil - Sucessoes", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 38", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878589.0", "Disciplina": "Clinica de Propedeutica Cirurgica Odontologica", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 26", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784794.0", "Disciplina": "Direito Processual Penal -  Acao Penal e Procedimentos", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 28", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766725.0", "Disciplina": "Sistemas Eletricos de Potencia", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 27", "Desc.Dia": "Ter", "Horário Início": "21:00"}, {"Cód.Disciplina": "2605243.0", "Disciplina": "Teoria Geral do Processo", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 24", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784789.0", "Disciplina": "Fundamentos Historicos e Introducao ao Estudo do Direito", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 46", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784837.0", "Disciplina": "Clinica Integrada de Atencao a Crianca I", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 26", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "100806.0", "Disciplina": "Direito Empresarial e Societario", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 26", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "2786190.0", "Disciplina": "Direito Tributario - Direito Constitucional Tributario", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 44", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766507.0", "Disciplina": "Direito Cibernetico", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 27", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3454236.0", "Disciplina": "Fundamentos para Reabilitacao Oral III", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 28", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "160824.0", "Disciplina": "Direito Civil - Contratos", "Curso": "Direito", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 27", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3454404.0", "Disciplina": "Direito Ambiental", "Curso": "Direito", "Semestre": "10", "Tipo": "HIB", "Turno": "M", "Sala": "B - 24", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3456346.0", "Disciplina": "Direito Internacional", "Curso": "Direito", "Semestre": "10", "Tipo": "HIB", "Turno": "M", "Sala": "B - 24", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "160833.0", "Disciplina": "Direito Civil - Familia", "Curso": "Direito", "Semestre": "8", "Tipo": "NOR", "Turno": "M", "Sala": "B - 21", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "2786190.0", "Disciplina": "Direito Tributario - Direito Constitucional Tributario", "Curso": "Direito", "Semestre": "3, 4, 6", "Tipo": "NOR", "Turno": "M", "Sala": "B - 27", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784791.0", "Disciplina": "Direito Coletivo do Trabalho e Tutelas Coletivas", "Curso": "Direito", "Semestre": "4, 5, 6", "Tipo": "NOR", "Turno": "M", "Sala": "B - 37", "Desc.Dia": "Sex", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784794.0", "Disciplina": "Direito Processual Penal -  Acao Penal e Procedimentos", "Curso": "Direito", "Semestre": "4, 6, 7", "Tipo": "NOR", "Turno": "M", "Sala": "B - 27", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "2786194.0", "Disciplina": "Modelo Multiportas e Meios Integradores de Resolucao de Conflitos", "Curso": "Direito", "Semestre": "2, 3, 5", "Tipo": "NOR", "Turno": "M", "Sala": "B - 24", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784790.0", "Disciplina": "Direito Penal - Teoria das Penas e Execucao Penal", "Curso": "Direito", "Semestre": "3, 5", "Tipo": "NOR", "Turno": "M", "Sala": "B - 52", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "2786188.0", "Disciplina": "Direito Tributario - Tributos em Especie e Processo Tributario", "Curso": "Direito", "Semestre": "8", "Tipo": "NOR", "Turno": "M", "Sala": "B - 34", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "33585.0", "Disciplina": "Direito Civil - Parte Geral", "Curso": "Direito", "Semestre": "Calouro / 2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 35", "Desc.Dia": "Sex", "Horário Início": "08:00"}, {"Cód.Disciplina": "", "Disciplina": "Teoria Geral do Direito Constitucional", "Curso": "Direito", "Semestre": "Calouro", "Tipo": "NOR", "Turno": "M", "Sala": "B - 19", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "2605243.0", "Disciplina": "Teoria Geral do Processo", "Curso": "Direito", "Semestre": "Calouro / 2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 32", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "2610014.0", "Disciplina": "Eletronica Analogica", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 32", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "2768208.0", "Disciplina": "Analise de Custos", "Curso": "Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 29", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457311.0", "Disciplina": "Estruturas Hiperestaticas", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 38", "Desc.Dia": "Qui", "Horário Início": "21:00"}, {"Cód.Disciplina": "3808466.0", "Disciplina": "Materiais de Construcao Civil I", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 27", "Desc.Dia": "Seg", "Horário Início": "21:00"}, {"Cód.Disciplina": "3678441.0", "Disciplina": "Estruturas de Concreto Armado II", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 32", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3454688.0", "Disciplina": "Fundacoes", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 29", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3808462.0", "Disciplina": "Pontes e Grandes Estruturas", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 20", "Desc.Dia": "Qua", "Horário Início": "21:00"}, {"Cód.Disciplina": "2630776.0", "Disciplina": "Calculo Diferencial e Integral II", "Curso": "Eng. Civil/Eng. Mecânica/Eng. Elétrica/Eng. Produção", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 37", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3024349.0", "Disciplina": "Fisica Geral e Experimental - Mecanica", "Curso": "Eng. Civil/Eng. Mecânica", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 46", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3780419.0", "Disciplina": "Logica e Matematica Computacional", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 30", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3251087.0", "Disciplina": "Geologia e Mecanica dos Solos", "Curso": "Eng, Civil", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 21", "Desc.Dia": "Sex", "Horário Início": "19:00:00"}, {"Cód.Disciplina": "3766445.0", "Disciplina": "Automacao de Processos Industriais", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 32", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "2912239.0", "Disciplina": "Principios de Eletricidade e Magnetismo", "Curso": "Eng,. Civil/Eng. Química", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 30", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3456383.0", "Disciplina": "Transferencia de Calor e Massa", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 28", "Desc.Dia": "Seg", "Horário Início": "21:00"}, {"Cód.Disciplina": "3454079.0", "Disciplina": "Psicologia e Politicas Publicas", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 28", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "284149.0", "Disciplina": "Calculo Diferencial e Integral III", "Curso": "Eng. Mecânica/Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 24", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3980425.0", "Disciplina": "Resistencia dos Materiais", "Curso": "Eng,. Civil/Eng. Química", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 35", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "2912252.0", "Disciplina": "Calculo Diferencial e Integral", "Curso": "Eng. Mecânica", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 49", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457889.0", "Disciplina": "Sistemas de Telecomunicacoes", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 49", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766489.0", "Disciplina": "Conversao Eletromagnetica de Energia e Maquinas Eletricas", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 37", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766528.0", "Disciplina": "Eletronica Analogica Avancada", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 22", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766649.0", "Disciplina": "Modelagem e Controle de Sistemas", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 29", "Desc.Dia": "Qua", "Horário Início": "21:00"}, {"Cód.Disciplina": "28776.0", "Disciplina": "Matrizes do Pensamento em Psicologia - Psicanalise", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 34", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3808483.0", "Disciplina": "Analise e Processamento de Sinais", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 29", "Desc.Dia": "Sex", "Horário Início": "21:00"}, {"Cód.Disciplina": "3166347.0", "Disciplina": "Quimica e Ciencia dos Materiais", "Curso": "Eng. Produção", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 38", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "4022459.0", "Disciplina": "Introducao a Biologia Celular e do Desenvolvimento", "Curso": "Medicina Veterinaria", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 29", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3808653.0", "Disciplina": "Redes de Comunicacao Industrial", "Curso": "Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 29", "Desc.Dia": "Qui", "Horário Início": "21:00"}, {"Cód.Disciplina": "148154.0", "Disciplina": "Direito Constitucional", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 37", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784793.0", "Disciplina": "Direito Penal - dos Crimes em Especie", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 38", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3454742.0", "Disciplina": "Motores de Combustao Interna", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 51", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3455682.0", "Disciplina": "Geracao e Distribuicao de Vapor", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 37", "Desc.Dia": "Qui", "Horário Início": "21:00"}, {"Cód.Disciplina": "3455682.0", "Disciplina": "Geracao e Distribuicao de Vapor", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 30", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766575.0", "Disciplina": "Fundamentos de Eletrotecnica", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 23", "Desc.Dia": "Sex", "Horário Início": "21:00"}, {"Cód.Disciplina": "98710.0", "Disciplina": "Processos Psicologicos Basicos", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 35", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457096.0", "Disciplina": "Refrigeracao, Ar Condicionado e Ventilacao", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 24", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "2910228.0", "Disciplina": "Desenho Tecnico Projetivo", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 20", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3656436.0", "Disciplina": "Consultoria Organizacional", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 32", "Desc.Dia": "Qui", "Horário Início": "21:00"}, {"Cód.Disciplina": "98710.0", "Disciplina": "Processos Psicologicos Basicos", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 34", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "2952845.0", "Disciplina": "Quimica Geral", "Curso": "Eng. Química", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 39", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784747.0", "Disciplina": "Programacao e Desenvolvimento de Banco de Dados", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 37", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766503.0", "Disciplina": "Diagnostico e Intervencao em Psicologia", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 28", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766701.0", "Disciplina": "Psicologia Social - Avancada", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 28", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784851.0", "Disciplina": "Matrizes do Pensamento em Psicologia - Cognitiva Comportamental", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 26", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766699.0", "Disciplina": "Psicologia Escolar e Educacional", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 38", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784851.0", "Disciplina": "Matrizes do Pensamento em Psicologia - Cognitiva Comportamental", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 46", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878584.0", "Disciplina": "Clinica de Propedeutica e Biopsia Bucal", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 39", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "166729.0", "Disciplina": "Desenvolvimento Humano I", "Curso": "Psicologia", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 41", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "2580625.0", "Disciplina": "Neuroanatomofisiologia", "Curso": "Psicologia", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 47", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784830.0", "Disciplina": "Bacteriologia e Imunologia Aplicadas a Medicina Veterinaria", "Curso": "Medicina Veterinaria", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 40", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "166731.0", "Disciplina": "Desenvolvimento Humano II", "Curso": "Psicologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 39", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766704.0", "Disciplina": "Psicopatologia II", "Curso": "Psicologia", "Semestre": "7", "Tipo": "HIB", "Turno": "M", "Sala": "B - 32", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784852.0", "Disciplina": "Psicologia Social - Avancada", "Curso": "Psicologia", "Semestre": "5, 7", "Tipo": "NOR", "Turno": "M", "Sala": "B - 34", "Desc.Dia": "Sex", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784853.0", "Disciplina": "Medidas e Avaliacao em Psicologia III", "Curso": "Psicologia", "Semestre": "6, 8", "Tipo": "NOR", "Turno": "M", "Sala": "B - 40", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "3766701.0", "Disciplina": "Psicologia Social - Avancada", "Curso": "Psicologia", "Semestre": "3", "Tipo": "HIB", "Turno": "M", "Sala": "B - 52", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784837.0", "Disciplina": "Clinica Integrada de Atencao a Crianca I", "Curso": "Odontologia", "Semestre": "8", "Tipo": "NOR", "Turno": "M", "Sala": "B - 34", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "3112345.0", "Disciplina": "Matrizes do Pensamento em Psicologia - Existencial Humanista", "Curso": "Psicologia", "Semestre": "4, 6", "Tipo": "NOR", "Turno": "M", "Sala": "B - 27", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "3766700.0", "Disciplina": "Psicologia Organizacional e do Trabalho I", "Curso": "Psicologia", "Semestre": "3", "Tipo": "HIB", "Turno": "M", "Sala": "B - 35", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "98742.0", "Disciplina": "Medidas e Avaliacao em Psicologia I", "Curso": "Psicologia", "Semestre": "3, 4", "Tipo": "NOR", "Turno": "M", "Sala": "B - 37", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "28774.0", "Disciplina": "Matrizes do Pensamento em Psicologia - Behaviorismo", "Curso": "Psicologia", "Semestre": "3, 4", "Tipo": "NOR", "Turno": "M", "Sala": "B - 35", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "166729.0", "Disciplina": "Desenvolvimento Humano I", "Curso": "Psicologia", "Semestre": "Calouros / 2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 35", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "1666178.0", "Disciplina": "Psicologia, Ciencia e Profissao", "Curso": "Psicologia", "Semestre": "Calouros / 2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 37", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878572.0", "Disciplina": "Ciencias Patologicas Bucomaxilofaciais", "Curso": "Odontologia", "Semestre": "2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 35", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "2610601.0", "Disciplina": "Linguagem de Programacao", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 39", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3024351.0", "Disciplina": "Legislacao, Seguranca do Trabalho e Meio Ambiente", "Curso": "Eng. Civil/Eng. Mecânica/Eng. Produção", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 41", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784746.0", "Disciplina": "Algoritmos e Programacao Estruturada", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 51", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3456900.0", "Disciplina": "Engenharia de Software", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 41", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "2605271.0", "Disciplina": "Direito Internacional", "Curso": "Direito", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 46", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457883.0", "Disciplina": "Computacao em Nuvem", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 32", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "2912304.0", "Disciplina": "Fenomenos de Transporte", "Curso": "Eng. Mecânica/Eng. Elétrica", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 41", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3766694.0", "Disciplina": "Projeto de Software", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 19", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784805.0", "Disciplina": "Processo de Cuidar em Enfermagem", "Curso": "Enfermagem", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 47", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3976547.0", "Disciplina": "Desenvolvimento em Javascript", "Curso": "TADS", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 28", "Desc.Dia": "Qui", "Horário Início": "21:00"}, {"Cód.Disciplina": "2668181.0", "Disciplina": "Clinica Integrada de Atencao ao Adolescente", "Curso": "Odontologia", "Semestre": "8, 10", "Tipo": "NOR", "Turno": "M", "Sala": "B - 37", "Desc.Dia": "Sex", "Horário Início": "08:00"}, {"Cód.Disciplina": "3808432.0", "Disciplina": "Odontologia Pre-Clinica IV", "Curso": "Odontologia", "Semestre": "8", "Tipo": "HIB", "Turno": "M", "Sala": "B - 38", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878596.0", "Disciplina": "Clinica Integrada de Assistencia Odontologica III", "Curso": "Odontologia", "Semestre": "8", "Tipo": "NOR", "Turno": "M", "Sala": "B - 38", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "2599996.0", "Disciplina": "Enfermagem na Saude da Crianca e do Adolescente", "Curso": "Enfermagem", "Semestre": "2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 37", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784842.0", "Disciplina": "Clinica Integrada de Atencao ao Idoso", "Curso": "Odontologia", "Semestre": "10", "Tipo": "NOR", "Turno": "M", "Sala": "B - 39", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784843.0", "Disciplina": "Clinica Integrada de Atencao a Pessoa Com Deficiencia", "Curso": "Odontologia", "Semestre": "10", "Tipo": "NOR", "Turno": "M", "Sala": "B - 32", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878590.0", "Disciplina": "Clinica Integrada de Assistencia Odontologica II", "Curso": "Odontologia", "Semestre": "6", "Tipo": "NOR", "Turno": "M", "Sala": "B - 40", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878571.0", "Disciplina": "Ciencias Patologicas Aplicadas a Odontologia", "Curso": "Odontologia", "Semestre": "2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 41", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3032444.0", "Disciplina": "Nutricao Animal", "Curso": "Medicina Veterinária", "Semestre": "4", "Tipo": "NOR", "Turno": "M", "Sala": "B - 44", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878575.0", "Disciplina": "Odontologia Cirurgica e Farmacoterapia", "Curso": "Odontologia", "Semestre": "2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 39", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878584.0", "Disciplina": "Clinica de Propedeutica e Biopsia Bucal", "Curso": "Odontologia", "Semestre": "6", "Tipo": "NOR", "Turno": "M", "Sala": "B - 34", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878589.0", "Disciplina": "Clinica de Propedeutica Cirurgica Odontologica", "Curso": "Odontologia", "Semestre": "6", "Tipo": "NOR", "Turno": "M", "Sala": "B - 41", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878577.0", "Disciplina": "Odontologia Pre-Clinica - Agravos ao Esmalte e dentina", "Curso": "Odontologia", "Semestre": "4", "Tipo": "NOR", "Turno": "M", "Sala": "B - 35", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "3878580.0", "Disciplina": "Odontologia Pre-Clinica - Agravos a Polpa dentaria", "Curso": "Odontologia", "Semestre": "4", "Tipo": "NOR", "Turno": "M", "Sala": "B - 44", "Desc.Dia": "Qui", "Horário Início": "08:00"}, {"Cód.Disciplina": "3784804.0", "Disciplina": "Fundamentos Semiologicos de Enfermagem", "Curso": "Enfermagem", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 47", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3906427.0", "Disciplina": "Fund. e Assistencia de Enfermagem ao Paciente Critico", "Curso": "Técnico de Enfermagem", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 48", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784841.0", "Disciplina": "Clinica Integrada de Atencao a Crianca II", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 22", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3454314.0", "Disciplina": "Desenvolvimento de Pessoas", "Curso": "Administração", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 49", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784839.0", "Disciplina": "Clinica Integrada de Reabilitacao Oral I", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 35", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784840.0", "Disciplina": "Clinica Integrada de Reabilitacao Oral II", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 22", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3780498.0", "Disciplina": "Propedeutica Clinica", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 23", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878597.0", "Disciplina": "Clinica Integrada de Assistencia Odontologica IV", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 38", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3784842.0", "Disciplina": "Clinica Integrada de Atencao ao Idoso", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 39", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "2770210.0", "Disciplina": "Teorias da Administracao", "Curso": "Administração", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 49", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878600.0", "Disciplina": "Atencao Odontologica nos Ciclos de Vida - Idosos e Grupos Especiais", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 35", "Desc.Dia": "Qua", "Horário Início": "21:00"}, {"Cód.Disciplina": "3936427.0", "Disciplina": "Clinica Odontologica Integrada de Reabilitacao I", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 52", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3372409.0", "Disciplina": "Algoritmos e Logica de Programacao", "Curso": "Eng. Civil/Eng. Mecânica", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 51", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878599.0", "Disciplina": "Clinica Odontologica para o Bebe, a Gestante e a Puerpera", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 40", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878571.0", "Disciplina": "Ciencias Patologicas Aplicadas a Odontologia", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 30", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878572.0", "Disciplina": "Ciencias Patologicas Bucomaxilofaciais", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 34", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878578.0", "Disciplina": "Odontologia Pre-Clinica - Agravos ao Periodonto", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 52", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878595.0", "Disciplina": "Atencao Odontologica nos Ciclos de Vida - Bebes, Criancas e Adolescentes", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 23", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878582.0", "Disciplina": "Odontologia Pre-Clinica - Reabilitacao dentaria Unitaria e Parcial Fixas", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 22", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878576.0", "Disciplina": "Odontologia Pre-Clinica - Agravos a Oclusao dentaria", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 44", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "", "Disciplina": "Direito Civil - Parte Geral", "Curso": "Direito", "Semestre": "Calouros ", "Tipo": "NOR", "Turno": "N", "Sala": "B - 32", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878581.0", "Disciplina": "Odontologia Pre-Clinica - Propedeutica e Imaginologia", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 21", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "3024330.0", "Disciplina": "Fisica Geral e Experimental - Energia", "Curso": "Eng. Mecânica/Eng. Química", "Semestre": "Calouros e Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 52", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3878580.0", "Disciplina": "Odontologia Pre-Clinica - Agravos a Polpa dentaria", "Curso": "Odontologia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 48", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "2912213.0", "Disciplina": "Microbiologia", "Curso": "Enfermagem", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 19", "Desc.Dia": "Qui", "Horário Início": "19:00"}, {"Cód.Disciplina": "", "Disciplina": "Gestão de Projetos", "Curso": "Logística", "Semestre": "Calouros ", "Tipo": "NOR", "Turno": "N", "Sala": "B - 34", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "3808480.0", "Disciplina": "Farmacologia dos Sistemas", "Curso": "Enfermagem/Farmácia", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 51", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "", "Disciplina": "Direito Civil - Obrigacoes", "Curso": "Direito", "Semestre": "Calouros ", "Tipo": "NOR", "Turno": "N", "Sala": "B - 31", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "", "Disciplina": "Introducao a Biologia Celular e do Desenvolvimento", "Curso": "Enfermagem", "Semestre": "Calouros ", "Tipo": "NOR", "Turno": "N", "Sala": "B - 40", "Desc.Dia": "Seg", "Horário Início": "19:00"}, {"Cód.Disciplina": "", "Disciplina": "Metodos Quantitativos", "Curso": "Logística", "Semestre": "Calouros ", "Tipo": "NOR", "Turno": "N", "Sala": "B - 44", "Desc.Dia": "Ter", "Horário Início": "19:00:00"}, {"Cód.Disciplina": "3784804.0", "Disciplina": "Fundamentos Semiologicos de Enfermagem", "Curso": "Enfermagem", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 52", "Desc.Dia": "Qua", "Horário Início": "19:00"}, {"Cód.Disciplina": "2599996.0", "Disciplina": "Enfermagem na Saude da Crianca e do Adolescente", "Curso": "Enfermagem", "Semestre": "2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 44", "Desc.Dia": "Ter", "Horário Início": "08:00"}, {"Cód.Disciplina": "166731.0", "Disciplina": "Desenvolvimento Humano II", "Curso": "Psicologia", "Semestre": "3", "Tipo": "NOR", "Turno": "M", "Sala": "B - 46", "Desc.Dia": "Qua", "Horário Início": "08:00"}, {"Cód.Disciplina": "2912213.0", "Disciplina": "Microbiologia", "Curso": "Enfermagem", "Semestre": "2", "Tipo": "NOR", "Turno": "M", "Sala": "B - 41", "Desc.Dia": "Seg", "Horário Início": "08:00"}, {"Cód.Disciplina": "2912249.0", "Disciplina": "Quimica Analitica", "Curso": "Eng. Química/Farmácia", "Semestre": "Veteranos", "Tipo": "NOR", "Turno": "N", "Sala": "B - 47", "Desc.Dia": "Sex", "Horário Início": "19:00"}, {"Cód.Disciplina": "", "Disciplina": "Cien. Morfofuncionais dos Sistemas Nervoso e Cardiorrespiratorio", "Curso": "Enfermagem", "Semestre": "Calouros ", "Tipo": "NOR", "Turno": "N", "Sala": "B - 48", "Desc.Dia": "Ter", "Horário Início": "19:00"}, {"Cód.Disciplina": "3457766.0", "Disciplina": "Metrologia e Controle Geometrico", "Curso": "Eng. Mecânica", "Semestre": "Veteranos", "Tipo": "HIB", "Turno": "N", "Sala": "B - 20", "Desc.Dia": "Qua", "Horário Início": "19:00"}]
+
+
+```
+
+```
+<div class="filters">
+  <div class="input-group">
+    <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+    <input type="text" id="search" placeholder="Buscar curso ou disciplina...">
+  </div>
+  
+  <div class="filters-row" id="advanced-filters">
+    <select id="turno" aria-label="Turno">
+      <option value="">Todos os Turnos</option>
+      <option value="M">Manhã</option>
+      <option value="N">Noite</option>
+    </select>
+    
+    <input type="text" id="search-sala" placeholder="Nº Sala" aria-label="Número da Sala">
+  </div>
+</div>
+
+<div class="count-indicator" id="results-count">Carregando...</div>
+
+<div class="cards" id="results">
+  <!-- Cartões renderizados via JS -->
+</div>
+
+```
